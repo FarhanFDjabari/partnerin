@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:partnerin/constants.dart';
 import 'package:partnerin/cubit/home/article/article_cubit.dart';
 import 'package:partnerin/cubit/home/business/business_cubit.dart';
+import 'package:partnerin/cubit/profile/profile_cubit.dart';
 import 'package:partnerin/model/home/category_model.dart';
 import 'package:partnerin/widgets/business_tile.dart';
 import 'package:partnerin/widgets/dummy_carousel.dart';
@@ -37,6 +38,9 @@ class _HomePageState extends State<HomePage> {
         BlocProvider(
           create: (context) =>
               BusinessCubit()..getAllBusiness(GetStorage().read('token')),
+        ),
+        BlocProvider(
+          create: (context) => ProfileCubit()..getUser('token'),
         ),
       ],
       child: Scaffold(
@@ -127,37 +131,44 @@ class _HomePageState extends State<HomePage> {
                 ),
                 SizedBox(height: 8),
                 if (!_isVerified)
-                  InkWell(
-                    onTap: () => Get.toNamed('/profile'),
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    child: Container(
-                      width: double.infinity,
-                      height: 40,
-                      color: Constants.PARTNERIN_TEAL,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 2,
-                      ),
-                      child: Text.rich(
-                        TextSpan(
-                          text: 'Lengkapi ',
-                          style: Theme.of(context).textTheme.bodyText2,
-                          children: [
-                            TextSpan(
-                              text: 'profil',
-                              style: GoogleFonts.poppins(
-                                color: Colors.red,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                  BlocListener<ProfileCubit, ProfileState>(
+                    listener: (context, state) {
+                      if (state is ProfileLoadSuccess) {
+                        _isVerified = state.user.emailVerifiedAt != null;
+                      }
+                    },
+                    child: InkWell(
+                      onTap: () => Get.toNamed('/profile'),
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      child: Container(
+                        width: double.infinity,
+                        height: 40,
+                        color: Constants.PARTNERIN_TEAL,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 2,
+                        ),
+                        child: Text.rich(
+                          TextSpan(
+                            text: 'Lengkapi ',
+                            style: Theme.of(context).textTheme.bodyText2,
+                            children: [
+                              TextSpan(
+                                text: 'profil',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.red,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            TextSpan(
-                              text:
-                                  ' mu sekarang juga untuk dapat bertransaksi!!',
-                              style: Theme.of(context).textTheme.bodyText2,
-                            ),
-                          ],
+                              TextSpan(
+                                text:
+                                    ' mu sekarang juga untuk dapat bertransaksi!!',
+                                style: Theme.of(context).textTheme.bodyText2,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -313,7 +324,9 @@ class _HomePageState extends State<HomePage> {
                                                         BlendMode.screen,
                                                       ),
                                                       child: Image.network(
-                                                        'https://partnerin.piuw.my.id/storage/${article.thumbnail!}',
+                                                        Constants
+                                                                .MEDIA_BASE_URL +
+                                                            article.thumbnail!,
                                                         fit: BoxFit.cover,
                                                       ),
                                                     ),

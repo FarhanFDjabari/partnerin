@@ -42,7 +42,7 @@ class BusinessTile extends StatelessWidget {
                   ),
                   color: Colors.grey,
                   image: DecorationImage(
-                    image: NetworkImage(thumbnail!),
+                    image: NetworkImage(Constants.MEDIA_BASE_URL + thumbnail!),
                     fit: BoxFit.cover,
                   )),
             ),
